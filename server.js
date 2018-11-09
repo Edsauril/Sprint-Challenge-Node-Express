@@ -8,6 +8,7 @@ const server = express();
 
 server.use(helmet());
 server.use(morgan("dev"));
+server.use(express.json());
 
 server.get("/", (req, res) => {
   res.status(500).json({ api: "running" });
@@ -68,26 +69,30 @@ server.get("/projects/:id", (req, res) => {
     });
 });
 //================================================================== <=== Post
-server.post("/actions", async (req, res) => {
-  console.log("body", req.body);
-  try {
-    res.status(201).json(await actionModel.insert(req.body));
-  } catch (error) {
-    let message = "error creating this action";
-
-    res.status(500).json({ message, error });
-  }
+server.post("/actions", (req, res) => {
+  console.log("body", req);
+  actionModel
+    .insert(req.body)
+    .then(post => {
+      res.status(200).json(post);
+    })
+    .catch(err => {
+      res.status(500).json({ message: err });
+      console.error(err);
+    });
 });
 
-server.post("/projects", async (req, res) => {
+server.post("/projects", (req, res) => {
   console.log("body", req.body);
-  try {
-    res.status(201).json(await projectModel.insert(req.body));
-  } catch (error) {
-    let message = "error creating this project";
-
-    res.status(500).json({ message, error });
-  }
+  projectModel
+    .insert(req.body)
+    .then(post => {
+      res.status(200).json(post);
+    })
+    .catch(err => {
+      res.status(500).json({ message: err });
+      console.error(err);
+    });
 });
 
 //================================================================== <=== Put
